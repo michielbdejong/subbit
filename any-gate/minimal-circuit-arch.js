@@ -274,7 +274,7 @@ function tryout(infosetBin, baseCircuit, leftWire, rightWire, gate) {
         minimalCircuitsThisSize[newInfosetHex].push(proposedCircuit);
         if (!perFlag[addedWire]) {
           perFlag[addedWire] = [proposedCircuit];
-        } else if (proposedCircuit.length <= minimalCircuitsThisSize[newInfosetHex][0].length) {
+        } else if (proposedCircuit.length <= perFlag[addedWire][0].length) {
           // found another same-size solution for this flag
           perFlag[addedWire].push(proposedCircuit);
         }
