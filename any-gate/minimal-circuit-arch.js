@@ -96,7 +96,7 @@ function initialize() {
     infosetHex: bin2hex(funcs.join('')),
     circuit: [],
   }];
-  console.log('Initialized baseCircuits', baseCircuits);
+  // console.log('Initialized baseCircuits', baseCircuits);
 
   perFlag = {
     1: {
@@ -187,7 +187,7 @@ function addGate(toCircuit, leftWire, rightWire, gate) {
 }
 
 function bitGate(left, right, gate) {
-  console.log('bitGate', left, right, gate);
+  // console.log('bitGate', left, right, gate);
   var index = 0;
   if (left === '1') {
     index += 2;
@@ -199,7 +199,7 @@ function bitGate(left, right, gate) {
 }
 
 function applyGate(leftValuation, rightValuation, gate) {
-  console.log('applyGate', leftValuation, rightValuation, gate);
+  // console.log('applyGate', leftValuation, rightValuation, gate);
   var res = '';
   for (var i=0; i<leftValuation.length; i++) {
     res += bitGate(leftValuation[i], rightValuation[i], gate);
@@ -215,7 +215,7 @@ function getStack(circuit) {
     var addedLeftInput = baseStack[addedGate[0]];
     var addedRightInput = baseStack[addedGate[1]];
     var addedGateDescription = addedGate[2];
-    console.log('added', baseStack, addedGate, addedLeftInput, addedRightInput, addedGateDescription);
+    // console.log('added', baseStack, addedGate, addedLeftInput, addedRightInput, addedGateDescription);
     var addedValuation = applyGate(addedLeftInput, addedRightInput, addedGateDescription);
     stack[circuit] = baseStack.concat(addedValuation);
   }
@@ -223,7 +223,7 @@ function getStack(circuit) {
 }
 
 function circuitOutput(circuit) {
-  console.log('Getting circuit output for', circuit);
+  // console.log('Getting circuit output for', circuit);
   var circuitVars = getStack(circuit);
   return circuitVars[circuitVars.length -1];
 }
@@ -254,15 +254,15 @@ function cascade(promises) {
 function tryout(infosetBin, baseCircuit, leftWire, rightWire, gate) {
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log(`tryout(${infosetBin}, ${baseCircuit}, ${leftWire}, ${rightWire}, ${gate})`);
+      // console.log(`tryout(${infosetBin}, ${baseCircuit}, ${leftWire}, ${rightWire}, ${gate})`);
       var proposedCircuit = addGate(baseCircuit, leftWire, rightWire, gate);
       var addedWire = circuitOutput(proposedCircuit);
       var possiblyUseful = (infosetBin[flagPos(addedWire)] === '0');
-      console.log(proposedCircuit, addedWire, possiblyUseful);
+      // console.log(proposedCircuit, addedWire, possiblyUseful);
       if (possiblyUseful) {
         var newInfosetBin = addWire(infosetBin, addedWire);
         var newInfosetHex = bin2hex(newInfosetBin);
-        console.log(newInfosetBin, newInfosetHex);
+        // console.log(newInfosetBin, newInfosetHex);
         if (typeof minimalCircuitsThisSize[newInfosetHex] === 'undefined') { // actually useful, not just possibly :)
           minimalCircuitsThisSize[newInfosetHex] = proposedCircuit;
           if (!perFlag[addedWire]) {
@@ -324,7 +324,7 @@ function sweep() {
   var infosetHex = baseCircuits[lastBaseCircuitTried + 1].infosetHex;
   var baseCircuit = baseCircuits[lastBaseCircuitTried + 1].circuit;
   var infosetBin = hex2bin(infosetHex);
-  console.log(`Infoset is ${infosetBin} for current baseCircuit ${baseCircuit}`);
+  // console.log(`Infoset is ${infosetBin} for current baseCircuit ${baseCircuit}`);
 
   var gates = [
     // '0000',
