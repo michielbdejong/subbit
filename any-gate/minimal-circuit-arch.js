@@ -326,10 +326,30 @@ function sweep() {
   var infosetBin = hex2bin(infosetHex);
   console.log(`Infoset is ${infosetBin} for current baseCircuit ${baseCircuit}`);
 
+  var gates = [
+    // '0000',
+    '0001',
+    '0010',
+    // '0011',
+    '0100',
+    // '0101',
+    '0110',
+    '0111',
+    '1000',
+    '1001',
+    // '1010',
+    '1011',
+    // '1100',
+    '1101',
+    '1110',
+    // '1111',
+  ];
   var numWires = 2 + numVars + baseCircuit.length/3;
   for (var leftWire = 0; leftWire < numWires; leftWire++) {
     for (var rightWire = leftWire; rightWire < numWires; rightWire++) {
-      promises.push(tryout(infosetBin, baseCircuit, leftWire, rightWire, '1110'));
+      for (var gate = 0; gate < gates.length; gate++) {
+        promises.push(tryout(infosetBin, baseCircuit, leftWire, rightWire, gates[gate]));
+      }
     }
   }
   console.log('Starting cascade');
