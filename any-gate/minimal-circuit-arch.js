@@ -323,6 +323,7 @@ function circuitSizeUp() {
   lastBaseCircuitTried = -1;
 }
 
+var saveCounter = 0;
 function sweep() {
   if (Object.keys(perFlag).length === numFunctions) {
     console.log('No more sweep needed');
@@ -368,7 +369,9 @@ function sweep() {
     if (lastBaseCircuitTried === baseCircuits.length - 1) {
       circuitSizeUp();
     }
-    writeOut();
+    if (saveCounter++ % 10 === 0) {
+      writeOut();
+    }
     return sweep();
   });
 }
