@@ -168,6 +168,7 @@ function readIn() {
   }
 };
 
+var writeTo = 'even';
 function writeOut() {
   var str = JSON.stringify({
     lastBaseCircuitTried,
@@ -176,8 +177,12 @@ function writeOut() {
     minimalCircuitsThisSize,
     baseCircuitSize,
   }, null, 2);
-  fs.writeFileSync(`progress-${numVars}.json`, str);
-  fs.writeFileSync(`progress-${numVars}-${new Date().getTime()}.json`, str);
+  fs.writeFileSync(`progress-${numVars}-${writeTo}.json`, str);
+  if (writeTo === 'even') {
+    writeTo = 'odd';
+  } else {
+    writeTo = 'even';
+  }
 }
 
 function addGate(toCircuit, leftWire, rightWire) {
