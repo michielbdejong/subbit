@@ -100,22 +100,22 @@ function initialize() {
 
   perFlag = {
     1: {
-      '00': [],
-      '01': [],
-      '11': [],
+      '00': [[]],
+      '01': [[]],
+      '11': [[]],
     },
     2: {
-      '0000': [],
-      '0011': [],
-      '0101': [],
-      '1111': [],
+      '0000': [[]],
+      '0011': [[]],
+      '0101': [[]],
+      '1111': [[]],
     },
     3: {
-      '00000000': [],
-      '00001111': [],
-      '00110011': [],
-      '01010101': [],
-      '11111111': [],
+      '00000000': [[]],
+      '00001111': [[]],
+      '00110011': [[]],
+      '01010101': [[]],
+      '11111111': [[]],
     },
   }[numVars];
 
@@ -268,13 +268,15 @@ function tryout(infosetBin, baseCircuit, leftWire, rightWire, gate) {
         var newInfosetBin = addWire(infosetBin, addedWire);
         var newInfosetHex = bin2hex(newInfosetBin);
         // console.log(newInfosetBin, newInfosetHex);
-        if (typeof minimalCircuitsThisSize[newInfosetHex] === 'undefined') { // actually useful, not just possibly :)
-          minimalCircuitsThisSize[newInfosetHex] = proposedCircuit;
-          if (!perFlag[addedWire]) {
-            perFlag[addedWire] = proposedCircuit;
-            writeOut();
-            console.log(`${Object.keys(perFlag).length}: Added ${proposedCircuit} for ${addedWire}.`);
-          }
+        if (typeof minimalCircuitsThisSize[newInfosetHex] === 'undefined') {
+          minimalCircuitsThisSize[newInfosetHex] = [];
+        }
+        minimalCircuitsThisSize[newInfosetHex].push(proposedCircuit);
+        if (!perFlag[addedWire]) {
+          perFlag[addedWire] = [proposedCircuit];
+        } else if (proposedCircuit.length <= minimalCircuitsThisSize[newInfosetHex][0].length) {
+          // found another same-size solution for this flag
+          perFlag[addedWire].push(proposedCircuit);
         }
       }
       resolve();
@@ -304,10 +306,12 @@ function bin2hex(bin) {
 function circuitSizeUp() {
   baseCircuits = [];
   for (var infosetHex in minimalCircuitsThisSize) {
-    baseCircuits.push({
-      infosetHex,
-      circuit: minimalCircuitsThisSize[infosetHex]
-    });
+    for (var i=0; i<minimalCircuitsThisSize[infosetHex].length; i++) {
+      baseCircuits.push({
+        infosetHex,
+        circuit: minimalCircuitsThisSize[infosetHex][i]
+      });
+    }
   }
 
   baseCircuits = baseCircuits.sort((a, b) => {
