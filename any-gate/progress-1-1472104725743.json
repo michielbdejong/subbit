@@ -1,0 +1,27 @@
+{
+  "lastBaseCircuitTried": -1,
+  "perFlag": {
+    "10": [
+      1,
+      2,
+      "1110"
+    ],
+    "11": [],
+    "00": [],
+    "01": []
+  },
+  "baseCircuits": [
+    {
+      "infosetHex": "d",
+      "circuit": []
+    }
+  ],
+  "minimalCircuitsThisSize": {
+    "f": [
+      1,
+      2,
+      "1110"
+    ]
+  },
+  "baseCircuitSize": 0
+}
