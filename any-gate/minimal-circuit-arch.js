@@ -254,7 +254,7 @@ function cascade(promises) {
 function tryout(infosetBin, baseCircuit, leftWire, rightWire, gate) {
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log(`tryout(${infosetBin}, ${baseCircuit}, ${leftWire}, ${rightWire}, gate)`);
+      console.log(`tryout(${infosetBin}, ${baseCircuit}, ${leftWire}, ${rightWire}, ${gate})`);
       var proposedCircuit = addGate(baseCircuit, leftWire, rightWire, gate);
       var addedWire = circuitOutput(proposedCircuit);
       var possiblyUseful = (infosetBin[flagPos(addedWire)] === '0');
@@ -326,7 +326,7 @@ function sweep() {
   var infosetBin = hex2bin(infosetHex);
   console.log(`Infoset is ${infosetBin} for current baseCircuit ${baseCircuit}`);
 
-  var numWires = 2 + numVars + baseCircuit.length/2;
+  var numWires = 2 + numVars + baseCircuit.length/3;
   for (var leftWire = 0; leftWire < numWires; leftWire++) {
     for (var rightWire = leftWire; rightWire < numWires; rightWire++) {
       promises.push(tryout(infosetBin, baseCircuit, leftWire, rightWire, '1110'));
