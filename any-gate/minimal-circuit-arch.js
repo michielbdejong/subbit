@@ -189,12 +189,12 @@ function writeOut() {
   setTimeout(function() {
     console.log('writing perFlag');
     fs.writeFile(`progress-${numVars}-perFlag-${writeTo}.json`, JSON.stringify(perFlag, null, 2), function(err) {
-      delete perFlag;
+      //delete perFlag;
       global.gc();
       setTimeout(function() {
         console.log('writing circuits');
         fs.writeFile(`progress-${numVars}-circuits-${writeTo}.json`, JSON.stringify(minimalCircuitsThisSize, null, 2), function(err) {
-          delete minimalCircuitsThisSize;
+          //delete minimalCircuitsThisSize;
           global.gc();
           setTimeout(function() {
             console.log('writing basics');
@@ -297,10 +297,10 @@ function tryout(infosetBin, baseCircuit, leftWire, rightWire, gate) {
         var newInfosetBin = addWire(infosetBin, addedWire);
         var newInfosetHex = bin2hex(newInfosetBin);
         // console.log(newInfosetBin, newInfosetHex);
-        if (typeof minimalCircuitsThisSize[newInfosetHex] === 'undefined') {
-          minimalCircuitsThisSize[newInfosetHex] = [];
-        }
-        minimalCircuitsThisSize[newInfosetHex].push(proposedCircuit);
+//        if (typeof minimalCircuitsThisSize[newInfosetHex] === 'undefined') {
+//          minimalCircuitsThisSize[newInfosetHex] = [];
+//        }
+//        minimalCircuitsThisSize[newInfosetHex].push(proposedCircuit);
         if (!perFlag[addedWire]) {
           perFlag[addedWire] = [proposedCircuit];
         } else if (proposedCircuit.length <= perFlag[addedWire][0].length) {
@@ -396,20 +396,24 @@ function sweep() {
   return cascade(promises).then(() => {
     console.log('After cascade, calling next sweep');
     lastBaseCircuitTried++;
-//    if (lastBaseCircuitTried === baseCircuits.length - 1) {
-//      circuitSizeUp();
-//    }
-//    if (saveCounter++ % 10 === 0) {
-//    }
-//    return sweep();
+    if (lastBaseCircuitTried === baseCircuits.length - 1) {
+      circuitSizeUp();
+    }
+    if (saveCounter++ % 10 === 0) {
+    }
+    return sweep();
   });
 }
 
 //...
 initialize();
 
+if (lastBaseCircuitTried === baseCircuits.length - 1) {
+  circuitSizeUp();
+}
+
 sweep().then(() => {
-  delete stack;
+  //delete stack;
       writeOut();
 //  console.log(minimalCircuitsThisSize);
 //  console.log(perFlag);
