@@ -185,18 +185,35 @@ function readIn() {
 
 var writeTo = 'even';
 function writeOut() {
-  fs.writeFileSync(`progress-${numVars}-perFlag-${writeTo}.json`, JSON.stringify(perFlag, null, 2));
-  fs.writeFileSync(`progress-${numVars}-circuits-${writeTo}.json`, JSON.stringify(minimalCircuitsThisSize, null, 2));
-  fs.writeFileSync(`progress-${numVars}-basics-${writeTo}.json`, JSON.stringify({
-    lastBaseCircuitTried,
-    baseCircuits,
-    baseCircuitSize,
-  }, null, 2));
-  if (writeTo === 'even') {
-    writeTo = 'odd';
-  } else {
-    writeTo = 'even';
-  }
+  global.gc();
+  setTimeout(function() {
+    console.log('writing perFlag');
+    fs.writeFile(`progress-${numVars}-perFlag-${writeTo}.json`, JSON.stringify(perFlag, null, 2), function(err) {
+      delete perFlag;
+      global.gc();
+      setTimeout(function() {
+        console.log('writing circuits');
+        fs.writeFile(`progress-${numVars}-circuits-${writeTo}.json`, JSON.stringify(minimalCircuitsThisSize, null, 2), function(err) {
+          delete minimalCircuitsThisSize;
+          global.gc();
+          setTimeout(function() {
+            console.log('writing basics');
+            fs.writeFile(`progress-${numVars}-basics-${writeTo}.json`, JSON.stringify({
+              lastBaseCircuitTried,
+              baseCircuits,
+              baseCircuitSize,
+            }, null, 2), function(err) {
+              if (writeTo === 'even') {
+                writeTo = 'odd';
+              } else {
+                writeTo = 'even';
+              }
+            });
+          }, 5000);
+        });
+      }, 5000);
+    });
+  }, 5000);
 }
 
 function addGate(toCircuit, leftWire, rightWire, gate) {
@@ -343,6 +360,7 @@ function sweep() {
   }
   console.log('sweep start');
   var promises = [];
+  console.log('baseCircuit', baseCircuits.length, lastBaseCircuitTried+1, baseCircuits[lastBaseCircuitTried +1]);
   var infosetHex = baseCircuits[lastBaseCircuitTried + 1].infosetHex;
   var baseCircuit = baseCircuits[lastBaseCircuitTried + 1].circuit;
   var infosetBin = hex2bin(infosetHex);
@@ -378,13 +396,12 @@ function sweep() {
   return cascade(promises).then(() => {
     console.log('After cascade, calling next sweep');
     lastBaseCircuitTried++;
-    if (lastBaseCircuitTried === baseCircuits.length - 1) {
-      circuitSizeUp();
-    }
-//    if (saveCounter++ % 10 === 0) {
-      writeOut();
+//    if (lastBaseCircuitTried === baseCircuits.length - 1) {
+//      circuitSizeUp();
 //    }
-    return sweep();
+//    if (saveCounter++ % 10 === 0) {
+//    }
+//    return sweep();
   });
 }
 
@@ -392,8 +409,10 @@ function sweep() {
 initialize();
 
 sweep().then(() => {
-  console.log(minimalCircuitsThisSize);
-  console.log(perFlag);
+  delete stack;
+      writeOut();
+//  console.log(minimalCircuitsThisSize);
+//  console.log(perFlag);
 }, err => {
   console.error(err);
 });
