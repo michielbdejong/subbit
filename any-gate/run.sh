@@ -4,4 +4,6 @@ while true; do
        sleep 1
        node updateMainProgress.js
        sleep 1
+       node count.js
+       sleep 1
 done
