@@ -185,13 +185,13 @@ function readIn() {
 
 var writeTo = 'even';
 function writeOut() {
+  fs.writeFileSync(`progress-${numVars}-perFlag-${writeTo}.json`, JSON.stringify(perFlag, null, 2));
+  fs.writeFileSync(`progress-${numVars}-circuits-${writeTo}.json`, JSON.stringify(minimalCircuitsThisSize, null, 2));
   fs.writeFileSync(`progress-${numVars}-basics-${writeTo}.json`, JSON.stringify({
     lastBaseCircuitTried,
     baseCircuits,
     baseCircuitSize,
   }, null, 2));
-  fs.writeFileSync(`progress-${numVars}-perFlag-${writeTo}.json`, JSON.stringify(perFlag, null, 2));
-  fs.writeFileSync(`progress-${numVars}-circuits-${writeTo}.json`, JSON.stringify(minimalCircuitsThisSize, null, 2));
   if (writeTo === 'even') {
     writeTo = 'odd';
   } else {

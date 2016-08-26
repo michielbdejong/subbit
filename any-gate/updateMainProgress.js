@@ -16,7 +16,7 @@ var progressStatus = {
 
 for (var fileSuffix in progressStatus) {
   try {
-    var read = JSON.parse(fs.readFileSync(`progress-3${fileSuffix}-basics.json`));
+    var read = JSON.parse(fs.readFileSync(`progress-3-basics${fileSuffix}.json`));
     progressStatus[fileSuffix].baseCircuitSize = read.baseCircuitSize;
     progressStatus[fileSuffix].lastBaseCircuitTried = read.lastBaseCircuitTried;
   } catch (e) {
