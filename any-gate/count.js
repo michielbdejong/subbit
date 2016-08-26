@@ -5,26 +5,26 @@ console.log(`Now considering ${read.baseCircuitSize}-gate base circuit ${read.la
 console.log(`Found minimal circuits so far for ${Object.keys(read.perFlag).length} out of 256 of the desired Boolean functions.`);
 var stats = {};
 
-function inputType(wire) {
-  if (wire<2) {
-    return 'X';
-  }
+function inputType(wire, stack) {
   if (wire<5) {
-    return 'I';
+    return ['X', 'X', 'A', 'B', 'C'][wire];
   }
-  return (wire-5).toString();
+  return stack[(wire-5)];
 }
 
 function getArch(circuit) {
   var arch = [];
   // 0 is input, k>0 is previous gate.
   for (var i=0; i<circuit.length; i+=3) {
-    var newGateArch = [inputType(circuit[i]), inputType(circuit[i+1])].sort();
+    var newGateArch = '['+[inputType(circuit[i], arch), inputType(circuit[i+1], arch)].sort().join(',')+']';
     // console.log(circuit[i], circuit[i+1], circuit[i+2], newGateArch);
-    arch = arch.concat(newGateArch);
+    arch.push(newGateArch);
   }
   // console.log('arch', circuit, arch);
-  return arch.join('');
+  if (arch.length === 0) {
+    return '[]';
+  }
+  return arch[arch.length - 1];
 }
 
 for (var flag in read.perFlag) {
@@ -43,7 +43,10 @@ for (var flag in read.perFlag) {
   }
 
   funcArch.sort((a, b) => {
-    return (parseInt(a.split(':')) > parseInt(b.split(':')[1]));
+    if (parseInt(a.split(':')[1]) !== parseInt(b.split(':')[1])) {
+      return (parseInt(b.split(':')) - parseInt(a.split(':')[1]));
+    }
+    return ((a.split(':')[0] > b.split(':')[0]) ? 1 : -1);
   });
 
   if (typeof stats[funcArch] === 'undefined') {
