@@ -16,7 +16,7 @@ var progressStatus = {
 
 for (var fileSuffix in progressStatus) {
   try {
-    var read = JSON.parse(fs.readFileSync(`progress-3${fileSuffix}.json`));
+    var read = JSON.parse(fs.readFileSync(`progress-3${fileSuffix}-basics.json`));
     progressStatus[fileSuffix].baseCircuitSize = read.baseCircuitSize;
     progressStatus[fileSuffix].lastBaseCircuitTried = read.lastBaseCircuitTried;
   } catch (e) {
@@ -40,10 +40,12 @@ if (progressStatus['-even'].baseCircuitSize > progressStatus[best].baseCircuitSi
 }
 console.log(`Best is ${best}`);
 if (best !== '') {
-  fs.unlink('progress-3.json', function(err) {
-    console.log('unliked', err);
-    fs.rename(`progress-3${best}.json`, 'progress-3.json', function(err) {
-      console.log('renamed', err);
+  ['basics', 'perFlag', 'circuits'].map(part => {
+    fs.unlink(`progress-3-${part}.json`, function(err) {
+      console.log('unliked', err);
+      fs.rename(`progress-3-${part}${best}.json`, `progress-3-${part}.json`, function(err) {
+        console.log('renamed', err);
+      });
     });
   });
 }

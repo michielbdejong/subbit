@@ -159,27 +159,36 @@ function initialize() {
 
 function readIn() {
   try {
-    var read = JSON.parse(fs.readFileSync(`progress-${numVars}.json`));
-    minimalCircuitsThisSize = read.minimalCircuitsThisSize;
-    perFlag = read.perFlag;
+    let read = JSON.parse(fs.readFileSync(`progress-${numVars}-basics.json`));
     baseCircuits = read.baseCircuits;
     baseCircuitSize = read.baseCircuitSize;
     lastBaseCircuitTried = read.lastBaseCircuitTried;
   } catch(e) {
-    console.error(`could not read from file progress-${numVars}.json`);
+    console.error(`could not read from file progress-${numVars}-basics.json`);
+  }
+
+  try {
+    perFlag = JSON.parse(fs.readFileSync(`progress-${numVars}-perFlag.json`));
+  } catch(e) {
+    console.error(`could not read from file progress-${numVars}-perFlag.json`);
+  }
+
+  try {
+    minimalCircuitsThisSize = JSON.parse(fs.readFileSync(`progress-${numVars}-circuits.json`));
+  } catch(e) {
+    console.error(`could not read from file progress-${numVars}-circuits.json`);
   }
 };
 
 var writeTo = 'even';
 function writeOut() {
-  var str = JSON.stringify({
+  fs.writeFileSync(`progress-${numVars}-basics-${writeTo}.json`, JSON.stringify({
     lastBaseCircuitTried,
-    perFlag,
     baseCircuits,
-    minimalCircuitsThisSize,
     baseCircuitSize,
-  }, null, 2);
-  fs.writeFileSync(`progress-${numVars}-${writeTo}.json`, str);
+  }, null, 2));
+  fs.writeFileSync(`progress-${numVars}-perFlag-${writeTo}.json`, JSON.stringify(perFlag, null, 2));
+  fs.writeFileSync(`progress-${numVars}-circuits-${writeTo}.json`, JSON.stringify(minimalCircuitsThisSize, null, 2));
   if (writeTo === 'even') {
     writeTo = 'odd';
   } else {
@@ -369,9 +378,9 @@ function sweep() {
     if (lastBaseCircuitTried === baseCircuits.length - 1) {
       circuitSizeUp();
     }
-    if (saveCounter++ % 10 === 0) {
+//    if (saveCounter++ % 10 === 0) {
       writeOut();
-    }
+//    }
     return sweep();
   });
 }
