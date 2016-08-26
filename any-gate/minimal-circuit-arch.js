@@ -157,16 +157,19 @@ function initialize() {
   readIn();
 }
 
-function readIn() {
+function readInBasics() {
   try {
-    let read = JSON.parse(fs.readFileSync(`progress-${numVars}-basics.json`));
+    var read = JSON.parse(fs.readFileSync(`progress-${numVars}-basics.json`));
     baseCircuits = read.baseCircuits;
     baseCircuitSize = read.baseCircuitSize;
     lastBaseCircuitTried = read.lastBaseCircuitTried;
   } catch(e) {
     console.error(`could not read from file progress-${numVars}-basics.json`);
   }
+}
 
+function readIn() {
+  readInBasics();
   try {
     perFlag = JSON.parse(fs.readFileSync(`progress-${numVars}-perFlag.json`));
   } catch(e) {

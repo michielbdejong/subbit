@@ -1,4 +1,6 @@
-var read = JSON.parse(require('fs').readFileSync('progress-3.json'));
+var read = JSON.parse(require('fs').readFileSync('progress-3-basics.json'));
+read.perFlag = JSON.parse(require('fs').readFileSync('progress-3-perFlag.json'));
+read.minimalCircuitsThisSize = JSON.parse(require('fs').readFileSync('progress-3-circuits.json'));
 console.log(`Now considering ${read.baseCircuitSize}-gate base circuit ${read.lastBaseCircuitTried} out of ${read.baseCircuits.length}.`);
 console.log(`Found minimal circuits so far for ${Object.keys(read.perFlag).length} out of 256 of the desired Boolean functions.`);
 var stats = {};
