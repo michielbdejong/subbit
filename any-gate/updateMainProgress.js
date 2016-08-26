@@ -26,16 +26,16 @@ for (var fileSuffix in progressStatus) {
 console.log(progressStatus);
 
 var best = '';
-if (progressStatus['-odd'].baseCircuitSize > progressStatus[''].baseCircuitSize) {
+if (progressStatus['-odd'].baseCircuitSize > progressStatus[best].baseCircuitSize) {
   best = '-odd';
-} else if ((progressStatus['-odd'].baseCircuitSize = progressStatus[''].baseCircuitSize) &&
-           (progressStatus['-odd'].lastBaseCircuitTried > progressStatus[''].lastBaseCircuitTried)) {
+} else if ((progressStatus['-odd'].baseCircuitSize = progressStatus[best].baseCircuitSize) &&
+           (progressStatus['-odd'].lastBaseCircuitTried > progressStatus[best].lastBaseCircuitTried)) {
   best = '-odd';
 }
-if (progressStatus['-even'].baseCircuitSize > progressStatus['-odd'].baseCircuitSize) {
+if (progressStatus['-even'].baseCircuitSize > progressStatus[best].baseCircuitSize) {
   best = '-even';
-} else if ((progressStatus['-even'].baseCircuitSize = progressStatus['-odd'].baseCircuitSize) &&
-           (progressStatus['-even'].lastBaseCircuitTried > progressStatus['-odd'].lastBaseCircuitTried)) {
+} else if ((progressStatus['-even'].baseCircuitSize = progressStatus[best].baseCircuitSize) &&
+           (progressStatus['-even'].lastBaseCircuitTried > progressStatus[best].lastBaseCircuitTried)) {
   best = '-even';
 }
 console.log(`Best is ${best}`);
