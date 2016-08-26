@@ -25,7 +25,13 @@ for (var fileSuffix in progressStatus) {
 
 console.log(progressStatus);
 
-var best = '-odd';
+var best = '';
+if (progressStatus['-odd'].baseCircuitSize > progressStatus[''].baseCircuitSize) {
+  best = '-odd';
+} else if ((progressStatus['-odd'].baseCircuitSize = progressStatus[''].baseCircuitSize) &&
+           (progressStatus['-odd'].lastBaseCircuitTried > progressStatus[''].lastBaseCircuitTried)) {
+  best = '-odd';
+}
 if (progressStatus['-even'].baseCircuitSize > progressStatus['-odd'].baseCircuitSize) {
   best = '-even';
 } else if ((progressStatus['-even'].baseCircuitSize = progressStatus['-odd'].baseCircuitSize) &&
@@ -33,10 +39,11 @@ if (progressStatus['-even'].baseCircuitSize > progressStatus['-odd'].baseCircuit
   best = '-even';
 }
 console.log(`Best is ${best}`);
-fs.unlink('progress-3.json', function(err) {
-  console.log('unliked', err);
-  fs.rename(`progress-3${best}.json`, 'progress-3.json', function(err) {
-    console.log('renamed', err);
+if (best !== '') {
+  fs.unlink('progress-3.json', function(err) {
+    console.log('unliked', err);
+    fs.rename(`progress-3${best}.json`, 'progress-3.json', function(err) {
+      console.log('renamed', err);
+    });
   });
-});
-
+}
