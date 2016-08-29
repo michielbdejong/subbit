@@ -50,9 +50,9 @@ for (var flag in read.perFlag) {
   });
 
   if (typeof stats[funcArch] === 'undefined') {
-    stats[funcArch]=0;
+    stats[funcArch]=[];
   }
-  stats[funcArch]++;
+  stats[funcArch].push(flag);
 }
 var statLines = [];
 for (var statLine in stats) {
@@ -60,6 +60,10 @@ for (var statLine in stats) {
 }
 // console.log(statLines);
 console.log(statLines.sort((a, b) => {
+  if (a.split(' ')[1].length != b.split(' ')[1].length) {
+    //compare on number of functions that have this funcArch
+    return a.split(' ')[1].length - b.split(' ')[1].length;
+  } 
   if (a.split(':')[0].length !== b.split(':')[0].length)  {
     // console.log('comparing', a,' to ', b, 'on first arch size', a.split(':')[0].length, b.split(':')[0].length);
     return (a.split(':')[0].length - b.split(':')[0].length);
