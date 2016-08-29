@@ -75,3 +75,12 @@ console.log(statLines.sort((a, b) => {
   // console.log('comparing', a, ' to ', b, 'as strings', (a > b), (a < b));
   return ((a > b) ? 1: -1);
 }));
+for (var flag=0; flag<256; flag++) {
+  var str = flag.toString(2);
+  while(str.length < 8) {
+    str = '0' + str;
+  }
+  if (typeof read.perFlag[str] == 'undefined') {
+    console.log('Missing', str);
+  }
+}
