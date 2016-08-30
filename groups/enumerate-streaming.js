@@ -6,7 +6,6 @@ var numValuations = Math.pow(2, numVars);
 var numFunctions = Math.pow(2, numValuations - 1); // we don't consider functions that start with 1, so for 3 vars, 01111111 is the highest
 
 var circuitSize = parseInt(process.argv[3]);
-var circuits;
 
 // gates are signed so their output is zero if both inputs are,
 // and represented by the list of input valuations for which their output
@@ -45,8 +44,8 @@ function applyGate(left, right, gateI) {
   return outputFor(left, right, gateI);
 }
 
-function addGate(circuitI, left, right, gateI) {
-  var baseStack = circuits[circuitI].stack;
+function addGate(obj, left, right, gateI, stream) {
+  var baseStack = obj.stack;
   var leftWire = baseStack[left];
   var rightWire = baseStack[right];
   var outWire = applyGate(leftWire, rightWire, gateI);
@@ -66,14 +65,12 @@ function addGate(circuitI, left, right, gateI) {
   sortedNewStack.sort((a, b) => {
     return parseInt(a) - parseInt(b)
   });
-  if (typeof newCircuits[sortedNewStack] === 'undefined') {
-    var newCircuit = circuits[circuitI].circuit.slice(0); // clone
-    newCircuit.push([left, right, gateI]);
-    newCircuits[sortedNewStack] = { stack: newStack, circuit: newCircuit };
-  }
+  var newCircuit = obj.circuit.slice(0); // clone
+  newCircuit.push([left, right, gateI]);
+  writeLine(stream, { stack: newStack, circuit: newCircuit });
 }
 
-function readIn(callback) {
+function readLines(callback) {
   try {
     var stream = fs.createReadStream(`circuits-${numVars}-${circuitSize-1}.txt`);
     stream.on('error', function(err) {
@@ -84,7 +81,6 @@ function readIn(callback) {
     });
 
     var foundUnreadableLine = false;
-    circuitsRead = [];
     lineReader.on('line', function (line) {
       var circuit;
       try {
@@ -92,47 +88,51 @@ function readIn(callback) {
       } catch (e) {
         foundUnreadableLine = true;
       }
-      circuitsRead.push(circuit);
+      callback(circuit);
     });
     lineReader.on('close', function() {
       if (foundUnreadableLine) {
         console.error(`Found unreadable line in circuits-${numVars}-${circuitSize-1}.txt`);
-      } else {
-        circuits = circuitsRead;
-        callback();
       }
+      callback(false);
     });
   } catch(e) {
     console.error(`Could not read circuits-${numVars}-${circuitSize-1}.txt`);
   }
 }
 
-function writeOut() {
+function writeOpen(callback) {
   var stream = fs.createWriteStream(`circuits-${numVars}-${circuitSize}.txt`);
   stream.once('open', function() {
-    for(var sortedStack in newCircuits) {
-      var line = JSON.stringify(newCircuits[sortedStack]) + '\n';
-      stream.write(line);
-    }
-    stream.end();
+    callback(stream);
   });
+}
+
+function writeLine(stream, obj) {
+  var line = JSON.stringify(obj) + '\n';
+  stream.write(line);
+}
+
+function writeClose(stream) {
+  stream.end();
 }
 
 // ...
 console.log('Reading in current circuits...');
-var newCircuits = {};
-readIn(function() {
-  console.log('Enumerating circuits with one gate added...');
-  for (var circuitI=0; circuitI<circuits.length; circuitI++) {
-    for (var gateI=0; gateI<gateDefs.length; gateI++) {
-      for (var left=0; left<circuits[circuitI].circuit.length+numVars; left++) {
-        for (var right=left+1; right<circuits[circuitI].circuit.length+numVars; right++) {
-          addGate(circuitI, left, right, gateI);
+writeOpen(function(stream) {
+  readLines(function(obj) {
+    if (obj) {
+      for (var gateI=0; gateI<gateDefs.length; gateI++) {
+        for (var left=0; left<obj.circuit.length+numVars; left++) {
+          for (var right=left+1; right<obj.circuit.length+numVars; right++) {
+            addGate(obj, left, right, gateI, stream);
+          }
         }
       }
+    } else {
+      console.log('Finish writing out new circuits...');
+      writeClose(stream);
+      console.log('Done.');
     }
-  }
-  console.log('Writing out new circuits...');
-  writeOut();
-  console.log('Done.');
+  });  
 });
