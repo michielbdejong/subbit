@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 var numVars = 3;
 var numValuations = Math.pow(2, numVars);
 var numFunctions = Math.pow(2, numValuations - 1); // we don't consider functions that start with 1, so for 3 vars, 01111111 is the highest
@@ -86,29 +88,43 @@ function addGate(circuitI, left, right, gateI) {
   }
   var newStack = baseStack.slice(0); // clone
   newStack.push(outWire);
-  // FIXME: ordering the stack is good for preventing duplicates,
-  // but it messes up when you want to add a second gate that uses
-  // the output of the first gate, and this is move from its position
-  // in the stack.
-  newStack.sort((a, b) => {
-    for (var i=0; i<a.length && i<b.length; i++) {
-      if (a[i] - b[i]) {
-        return a[i] > b[i];
-      }
-    }
-    return a.length - b.length;
+  var sortedNewStack = newStack.slice(0); // clone
+  sortedNewStack.sort((a, b) => {
+    return parseInt(a) - parseInt(b)
   });
   if (typeof newCircuits[newStack] === 'undefined') {
     var newCircuit = circuits[circuitI].circuit.slice(0); // clone
     newCircuit.push([left, right, gateI]);
-    newCircuits[newStack] = newCircuit;
+    newCircuits[sortedNewStack] = { newStack, newCircuit };
   }
 }
 
+function readIn() {
+
+}
+
+function writeOut() {
+  var stream = fs.createWriteStream('circuits.txt');
+  stream.once('open', function() {
+    for(var sortedStack in newCircuits) {
+      var line = JSON.stringify({
+        have: sortedStack,
+        stack: newCircuits[sortedStack].newStack,
+        circuit: newCircuits[sortedStack].newCircuit
+      }) + '\n';
+      console.log(line);
+      stream.write(line);
+    }
+    stream.end();
+  });
+}
+
+// ...
 console.log('Generating lookup table...');
 genGates();
 console.log('Done.');
 
+readIn();
 var newCircuits = {};
 for (var circuitI=0; circuitI<circuits.length; circuitI++) {
   for (var gateI=0; gateI<gateDefs.length; gateI++) {
@@ -119,4 +135,4 @@ for (var circuitI=0; circuitI<circuits.length; circuitI++) {
     }
   }
 }
-console.log(newCircuits);
+writeOut();
