@@ -111,16 +111,23 @@ function readIn(callback) {
       input: stream
     });
 
-    circuitsRead = [];  
+    var foundUnreadableLine = false;
+    circuitsRead = [];
     lineReader.on('line', function (line) {
       var circuit;
       try {
         circuit = JSON.parse(line);
+      } catch (e) {
+        foundUnreadableLine = true;
       }
       circuitsRead.push(circuit);
     });
     lineReader.on('close', function() {
-      circuits = circuitsRead;
+      if (foundUnreadableLine) {
+        console.error('Found unreadable line in circuits.txt');
+      } else {
+        circuits = circuitsRead;
+      }
       callback();
     });
   } catch(e) {
