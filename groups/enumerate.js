@@ -4,35 +4,9 @@ var readline = require('readline');
 var numVars = parseInt(process.argv[2]);
 var numValuations = Math.pow(2, numVars);
 var numFunctions = Math.pow(2, numValuations - 1); // we don't consider functions that start with 1, so for 3 vars, 01111111 is the highest
-//32768 16384 8192 4096 | 2048 1024 512 256 | 128 64 32 16 | 8 4 2 1
-//                      |                   |              |       * 1 A
-//
-//                      |                   |              |     * * 3 A
-//                      |                   |              |   *   * 5 B
-//
-//                      |                   |              | * * * * 15 A
-//                      |                   |         *  * |     * * 51 B
-//                      |                   |      *     * |   *   * 85 C
-//
-//                      |                   |   *  *  *  * | * * * * 255 A
-//                      |    *    *   *   * |              | * * * * (2048+1024+512+256+15)= 3855 B
-//                *   * |             *   * |         *  * |     * * (8192+4096+512+256+32+16+2+1)=13107 C
-//           *        * |         *       * |      *     * |   *   * (16384+4096+1024+256+64+16+4+1)=21845 D
-//
-// circuits are grouped by the stack of wires they provide
-// all wires are signed so that they're zero if all inputs are zero,
-// and represented by the sum of input valuations for which they are one.
-var circuits = [
-  {
-    stack: {
-      1: [1],
-      2: [3, 5],
-      3: [15, 51, 85],
-      4: [255, 3855, 13107, 21845],
-    }[numVars],
-    circuit: [],
-  }
-];
+
+var circuitSize = parseInt(process.argv[3]);
+var circuits;
 
 // gates are signed so their output is zero if both inputs are,
 // and represented by the list of input valuations for which their output
@@ -44,8 +18,6 @@ var gateDefs = [// different from 00:
   { left: false, right: true, both: false },  // 0010
   { left: false, right: false, both: true },  // 0001
 ];
-
-var gates = [];
 
 function hasFlag(wire, valuation) {
   var bitSig = Math.pow(2, numValuations - valuation - 1);
@@ -69,35 +41,17 @@ function outputFor(left, right, gateI) {
   return outputSum;
 }
 
-function genGates() {
-  for (var gateI=0; gateI<gateDefs.length; gateI++) {
-    var res = [];
-    for (var left = 0; left<numFunctions; left++) {
-      var leftRes = [];
-      for (var right = 0; right<numFunctions; right++) {
-        leftRes.push(outputFor(left, right, gateI));
-      }
-      res.push(leftRes);
-    }
-    gates.push(res);
-    console.log('Generated lookup table for gate', gateI);
-  }
-}
-
 function applyGate(left, right, gateI) {
-  // return gates[gateI][left][right];
   return outputFor(left, right, gateI);
 }
 
 function addGate(circuitI, left, right, gateI) {
   var baseStack = circuits[circuitI].stack;
-  // console.log('addGate', baseStack, left, right, gateI);
   var leftWire = baseStack[left];
   var rightWire = baseStack[right];
   var outWire = applyGate(leftWire, rightWire, gateI);
   var haveAlready = (outWire === 0); // FALSE and TRUE are presumed globally available, but of these only circuits that output FALSE
                                      // will be enumerated, because all wires are signed so that outputting TRUE is impossible
-  // console.log(baseStack, leftWire, rightWire, 'outWire', outWire);
   baseStack.map(wire => {
     if (wire === outWire) {
       haveAlready = true;
@@ -121,9 +75,9 @@ function addGate(circuitI, left, right, gateI) {
 
 function readIn(callback) {
   try {
-    var stream = fs.createReadStream(`circuits-${numVars}.txt`);
+    var stream = fs.createReadStream(`circuits-${numVars}-${circuitSize-1}.txt`);
     stream.on('error', function(err) {
-      console.error(`Could not open circuits-${numVars}.txt`);
+      console.error(`Could not open circuits-${numVars}-${circuitSize-1}.txt`);
       callback();
     });
     var lineReader = readline.createInterface({
@@ -143,14 +97,14 @@ function readIn(callback) {
     });
     lineReader.on('close', function() {
       if (foundUnreadableLine) {
-        console.error(`Found unreadable line in circuits-${numVars}.txt`);
+        console.error(`Found unreadable line in circuits-${numVars}-${circuitSize-1}.txt`);
       } else {
         circuits = circuitsRead;
       }
       callback();
     });
   } catch(e) {
-    console.error(`Could not read circuits-${numVars}.txt`);
+    console.error(`Could not read circuits-${numVars}-${circuitSize-1}.txt`);
     lineReader.on('close', function() {
       callback();
     });
@@ -158,24 +112,13 @@ function readIn(callback) {
 }
 
 function writeOut() {
-  var stream = fs.createWriteStream(`circuits-${numVars}.txt`);
+  var stream = fs.createWriteStream(`circuits-${numVars}-${circuitSize}.txt`);
   stream.once('open', function() {
-    for(var circuitI=0; circuitI<circuits.length; circuitI++) {
-      var line = JSON.stringify({
-//        have: sortedStack,
-        stack: circuits[circuitI].stack,
-        circuit: circuits[circuitI].circuit
-      }) + '\n';
-      // console.log(line);
-      stream.write(line);
-    }
     for(var sortedStack in newCircuits) {
       var line = JSON.stringify({
-//        have: sortedStack,
         stack: newCircuits[sortedStack].newStack,
         circuit: newCircuits[sortedStack].newCircuit
       }) + '\n';
-      // console.log(line);
       stream.write(line);
     }
     stream.end();
@@ -183,10 +126,7 @@ function writeOut() {
 }
 
 // ...
-// console.log('Generating lookup table...');
-// genGates();
 console.log('Reading in current circuits...');
-
 var newCircuits = {};
 readIn(function() {
   console.log('Enumerating circuits with one gate added...');
