@@ -1,4 +1,5 @@
 var fs = require('fs');
+var readline = require('readline');
 
 var numVars = 3;
 var numValuations = Math.pow(2, numVars);
@@ -99,8 +100,17 @@ function addGate(circuitI, left, right, gateI) {
   }
 }
 
-function readIn() {
+function readIn(callback) {
+  var lineReader = readline.createInterface({
+    input: fs.createReadStream('circuits.txt')
+  });
 
+  circuits = [];  
+  lineReader.on('line', function (line) {
+    var circuit = JSON.parse(line);
+    circuits.push(circuit);
+  });
+  lineReader.on('close', callback);
 }
 
 function writeOut() {
@@ -108,7 +118,7 @@ function writeOut() {
   stream.once('open', function() {
     for(var sortedStack in newCircuits) {
       var line = JSON.stringify({
-        have: sortedStack,
+//        have: sortedStack,
         stack: newCircuits[sortedStack].newStack,
         circuit: newCircuits[sortedStack].newCircuit
       }) + '\n';
@@ -124,15 +134,16 @@ console.log('Generating lookup table...');
 genGates();
 console.log('Done.');
 
-readIn();
 var newCircuits = {};
-for (var circuitI=0; circuitI<circuits.length; circuitI++) {
-  for (var gateI=0; gateI<gateDefs.length; gateI++) {
-    for (var left=0; left<circuits[circuitI].circuit.length+numVars; left++) {
-      for (var right=left+1; right<circuits[circuitI].circuit.length+numVars; right++) {
-        addGate(circuitI, left, right, gateI);
+readIn(function() {
+  for (var circuitI=0; circuitI<circuits.length; circuitI++) {
+    for (var gateI=0; gateI<gateDefs.length; gateI++) {
+      for (var left=0; left<circuits[circuitI].circuit.length+numVars; left++) {
+        for (var right=left+1; right<circuits[circuitI].circuit.length+numVars; right++) {
+          addGate(circuitI, left, right, gateI);
+        }
       }
     }
   }
-}
-writeOut();
+  writeOut();
+});
