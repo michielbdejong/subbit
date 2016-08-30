@@ -85,7 +85,8 @@ function genGates() {
 }
 
 function applyGate(left, right, gateI) {
-  return gates[gateI][left][right];
+  // return gates[gateI][left][right];
+  return outputFor(left, right, gateI);
 }
 
 function addGate(circuitI, left, right, gateI) {
@@ -182,8 +183,8 @@ function writeOut() {
 }
 
 // ...
-console.log('Generating lookup table...');
-genGates();
+// console.log('Generating lookup table...');
+// genGates();
 console.log('Reading in current circuits...');
 
 var newCircuits = {};
