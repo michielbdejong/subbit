@@ -1,0 +1,11 @@
+* generated minimal circuits for functions in 3-to-1 bits
+* experience optimizing script
+* subbit = distinction between the current input valuation and other possible input valuations which would have another activation pattern.
+* With 2 wires you can make 4 groups, but you have to put them back into either 2/2 or 3/1 groups to put the information back into one bit.
+* This means a reduction from 12 to just 8 or 6 "subbits".
+
+ ****  ****  ****
+* --- * --- *  --
+*- -- *-    *  --
+*-- - *-    *--  
+*---  *-    *--  
