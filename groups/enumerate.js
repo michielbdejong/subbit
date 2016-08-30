@@ -1,5 +1,6 @@
 var numVars = 3;
 var numValuations = Math.pow(2, numVars);
+var numFunctions = Math.pow(2, numValuations - 1); // we don't consider functions that start with 1, so for 3 vars, 01111111 is the highest
 // 128 64 32 16 8 4 2 1
 //              * * * * 15 A
 //         *  *     * * 51 B
@@ -32,30 +33,30 @@ function hasFlag(wire, valuation) {
   return ((wire % (2*bitSig)) >= bitSig);
 }
 
-function outputFor(left, right, gate) {
+// left, right range from 0 to 127
+// gateI ranges from 0 to 4
+function outputFor(left, right, gateI) {
   var outputSum = 0;
   for (var valuation=1; valuation<numValuations; valuation++) {
     var leftIsOne = hasFlag(left, valuation);
     var rightIsOne = hasFlag(right, valuation);
     var outputIsOne = (leftIsOne ?
-      rightIsOne ? gateDefs[gate].both : gateDefs[gate].left :
-      rightIsOne ? gateDefs[gate].right : false);
-    console.log('valuation', valuation, leftIsOne, rightIsOne, outputIsOne);
+      rightIsOne ? gateDefs[gateI].both : gateDefs[gateI].left :
+      rightIsOne ? gateDefs[gateI].right : false);
     if (outputIsOne) {
       outputSum += Math.pow(2, numValuations - valuation - 1);
-      console.log('outputSum increased to', outputSum);
     }
   }
   return outputSum;
 }
 
 function genGates() {
-  for (var gate=0; gate<gateDefs.length; gate++) {
+  for (var gateI=0; gateI<gateDefs.length; gateI++) {
     var res = [];
-    for (var left = 0; left<numValuations; left++) {
+    for (var left = 0; left<numFunctions; left++) {
       var leftRes = [];
-      for (var right = 0; right<numValuations; right++) {
-        leftRes.push(outputFor(left, right, gate));
+      for (var right = 0; right<numFunctions; right++) {
+        leftRes.push(outputFor(left, right, gateI));
       }
       res.push(leftRes);
     }
@@ -63,78 +64,20 @@ function genGates() {
   }
 }
 
-function applyGate(leftGroup, rightGroup, gate) {
-  var gateOutputsOneIf = {
-    rightOnly: (gate.indexOf(1) !== -1), // 01
-    leftOnly: (gate.indexOf(2) !== -1),  // 10
-    both: (gate.indexOf(3) !== -1),  // 11
-  };
-  var output = [];
-  var walkerL = 0;
-  var walkerR = 0;
-  while (true) {
-    var walkLeft = true;
-    var walkRight = true;
-    console.log('walking', leftGroup, rightGroup, walkerL, walkerR);
-    if (leftGroup[walkerL] > rightGroup[walkerR]) {
-      console.log(rightGroup[walkerR], 'right only');
-      if (gateOutputsOneIf.rightOnly) {
-        console.log(gate, gateOutputsOneIf, 'pushing');
-        output.push(rightGroup[walkerR]);
-      }
-      walkLeft = false;
-    } else if (leftGroup[walkerL] < rightGroup[walkerR]) {
-      console.log(leftGroup[walkerL], 'left only');
-      if (gateOutputsOneIf.leftOnly) {
-        console.log(gate, gateOutputsOneIf, 'pushing');
-        output.push(leftGroup[walkerL]);
-      }
-      walkRight = false;
-    } else {
-      console.log(rightGroup[walkerR], 'both');
-      if (gateOutputsOneIf.both) {
-        console.log(gate, gateOutputsOneIf, 'pushing');
-        output.push(rightGroup[walkerR]);
-      }
-    }
-    if (walkLeft) {
-      walkerL++;
-    }
-    if (walkRight) {
-      walkerR++;
-    }
-    if ((walkerL === leftGroup.length) || (walkerR === rightGroup.length)) {
-      break;
-    }
-  }
-  console.log('breaked', walkerL, walkerR, gateOutputsOneIf);
-  if (gateOutputsOneIf.leftOnly) {
-    // add any remaining left-onlies
-    for (; walkerL < leftGroup.length; walkerL++) {
-      console.log('adding left', leftGroup[walkerL]);
-      output.push(leftGroup[walkerL]);
-    }
-  }
-  if (gateOutputsOneIf.rightOnly) {
-    // add any remaining right-onlies
-    for (; walkerR < rightGroup.length; walkerR++) {
-      console.log('adding right', rightGroup[walkerR]);
-      output.push(rightGroup[walkerR]);
-    }
-  }
-  return output;
+function applyGate(left, right, gateI) {
+  return gates[gateI][left][right];
 }
 
-function addGate(circuitI, left, right, gate) {
+function addGate(circuitI, left, right, gateI) {
   var baseStack = circuits[circuitI].stack;
-  console.log('addGate', baseStack, left, right, gate);
+  console.log('addGate', baseStack, left, right, gateI);
   var leftWire = baseStack[left];
   var rightWire = baseStack[right];
-  var outWire = applyGate(leftWire, rightWire, gate);
+  var outWire = applyGate(leftWire, rightWire, gateI);
   var haveAlready = false;
   console.log(baseStack, leftWire, rightWire, 'outWire', outWire);
   baseStack.map(wire => {
-    if (wire.join(',') === outWire.join(',')) {
+    if (wire === outWire) {
       haveAlready = true;
     }
   }); 
@@ -157,21 +100,23 @@ function addGate(circuitI, left, right, gate) {
   });
   if (typeof newCircuits[newStack] === 'undefined') {
     var newCircuit = circuits[circuitI].circuit.slice(0); // clone
-    newCircuit.push([left, right, gate]);
+    newCircuit.push([left, right, gateI]);
     newCircuits[newStack] = newCircuit;
   }
 }
 
-console.log(outputFor(15, 51, 4));
+console.log('Generating lookup table...');
+genGates();
+console.log('Done.');
 
-// var newCircuits = {};
-// for (var circuitI=0; circuitI<circuits.length; circuitI++) {
-//   for (var gateI=0; gateI<gates.length; gateI++) {
-//     for (var left=0; left<circuits[circuitI].circuit.length+numVars; left++) {
-//       for (var right=left+1; right<circuits[circuitI].circuit.length+numVars; right++) {
-//         addGate(circuitI, left, right, gates[gateI]);
-//       }
-//     }
-//   }
-// }
-// console.log(newCircuits);
+var newCircuits = {};
+for (var circuitI=0; circuitI<circuits.length; circuitI++) {
+  for (var gateI=0; gateI<gateDefs.length; gateI++) {
+    for (var left=0; left<circuits[circuitI].circuit.length+numVars; left++) {
+      for (var right=left+1; right<circuits[circuitI].circuit.length+numVars; right++) {
+        addGate(circuitI, left, right, gateI);
+      }
+    }
+  }
+}
+console.log(newCircuits);
