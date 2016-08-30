@@ -1,7 +1,7 @@
 var fs = require('fs');
 var readline = require('readline');
 
-var numVars = 3;
+var numVars = parseInt(process.argv[2]);
 var numValuations = Math.pow(2, numVars);
 var numFunctions = Math.pow(2, numValuations - 1); // we don't consider functions that start with 1, so for 3 vars, 01111111 is the highest
 // 128 64 32 16 8 4 2 1
@@ -13,7 +13,11 @@ var numFunctions = Math.pow(2, numValuations - 1); // we don't consider function
 // and represented by the sum of input valuations for which they are one.
 var circuits = [
   {
-    stack: [15, 51, 85],
+    stack: {
+      1: [1],
+      2: [3, 5],
+      3: [15, 51, 85],
+    }[numVars],
     circuit: [],
   }
 ];
@@ -77,7 +81,8 @@ function addGate(circuitI, left, right, gateI) {
   var leftWire = baseStack[left];
   var rightWire = baseStack[right];
   var outWire = applyGate(leftWire, rightWire, gateI);
-  var haveAlready = false;
+  var haveAlready = (outWire === 0); // FALSE and TRUE are presumed globally available, but of these only circuits that output FALSE
+                                     // will be enumerated, because all wires are signed so that outputting TRUE is impossible
   // console.log(baseStack, leftWire, rightWire, 'outWire', outWire);
   baseStack.map(wire => {
     if (wire === outWire) {
@@ -102,9 +107,9 @@ function addGate(circuitI, left, right, gateI) {
 
 function readIn(callback) {
   try {
-    var stream = fs.createReadStream('circuits.txt');
+    var stream = fs.createReadStream(`circuits-${numVars}.txt`);
     stream.on('error', function(err) {
-      console.error('Could not open circuits.txt');
+      console.error(`Could not open circuits-${numVars}.txt`);
       callback();
     });
     var lineReader = readline.createInterface({
@@ -124,14 +129,14 @@ function readIn(callback) {
     });
     lineReader.on('close', function() {
       if (foundUnreadableLine) {
-        console.error('Found unreadable line in circuits.txt');
+        console.error(`Found unreadable line in circuits-${numVars}.txt`);
       } else {
         circuits = circuitsRead;
       }
       callback();
     });
   } catch(e) {
-    console.error('Could not read circuits.txt');
+    console.error(`Could not read circuits-${numVars}.txt`);
     lineReader.on('close', function() {
       callback();
     });
@@ -139,8 +144,17 @@ function readIn(callback) {
 }
 
 function writeOut() {
-  var stream = fs.createWriteStream('circuits.txt');
+  var stream = fs.createWriteStream(`circuits-${numVars}.txt`);
   stream.once('open', function() {
+    for(var circuitI=0; circuitI<circuits.length; circuitI++) {
+      var line = JSON.stringify({
+//        have: sortedStack,
+        stack: circuits[circuitI].stack,
+        circuit: circuits[circuitI].circuit
+      }) + '\n';
+      // console.log(line);
+      stream.write(line);
+    }
     for(var sortedStack in newCircuits) {
       var line = JSON.stringify({
 //        have: sortedStack,

@@ -1,15 +1,15 @@
 var fs = require('fs');
 var readline = require('readline');
 
-var numVars = 3;
+var numVars = parseInt(process.argv[2]);
 var numValuations = Math.pow(2, numVars);  // for 3 vars, 8 - 000-111
-var numFlags = Math.pow(2, numValuations-1); // for 3 vars, 2^7=128 - 00000000 - 01111111
+var numFlags = Math.pow(2, numValuations-1) - 1; // for 3 vars, 2^7-1=127 - 00000001 - 01111111
 
 function readIn(callback) {
   try {
-    var stream = fs.createReadStream('circuits.txt');
+    var stream = fs.createReadStream(`circuits-${numVars}.txt`);
     stream.on('error', function(err) {
-      console.error('Could not open circuits.txt');
+      console.error(`Could not open circuits-${numVars}.txt`);
       callback();
     });
     var lineReader = readline.createInterface({
@@ -29,14 +29,14 @@ function readIn(callback) {
     });
     lineReader.on('close', function() {
       if (foundUnreadableLine) {
-        console.error('Found unreadable line in circuits.txt');
+        console.error(`Found unreadable line in circuits-${numVars}.txt`);
       } else {
         circuits = circuitsRead;
       }
       callback();
     });
   } catch(e) {
-    console.error('Could not read circuits.txt');
+    console.error(`Could not read circuits-${numVars}.txt`);
     lineReader.on('close', function() {
       callback();
     });
@@ -58,7 +58,7 @@ readIn(function() {
     }
   }
   console.log(perFlag);
-  for (var flag = 0; flag<numFlags; flag++) {
+  for (var flag = 1; flag<=numFlags; flag++) {
     if (typeof perFlag[flag] === 'undefined') {
       console.log('Missing', flag);
     }
