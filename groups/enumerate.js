@@ -1,14 +1,15 @@
 var numVars = 3;
-// 01234567
-// ****
-// **  **
-// * * * *
+var numValuations = Math.pow(2, numVars);
+// 128 64 32 16 8 4 2 1
+//              * * * * 15 A
+//         *  *     * * 51 B
+//      *     *   *   * 85 C
 // circuits are grouped by the stack of wires they provide
 // all wires are signed so that they're zero if all inputs are zero,
-// and represented by the list of input valuations for which they are one.
+// and represented by the sum of input valuations for which they are one.
 var circuits = [
   {
-    stack: [[1,3,5,7], [2,3,6,7], [4,5,6,7]],
+    stack: [15, 51, 85],
     circuit: [],
   }
 ];
@@ -16,13 +17,51 @@ var circuits = [
 // gates are signed so their output is zero if both inputs are,
 // and represented by the list of input valuations for which their output
 // is one.
-var gates = [// different from 00:
-  [1,2],   // 0110
-  [1,2,3], // 0111
-  [1],     // 0100
-  [2],     // 0010
-  [3],     // 0001
+var gateDefs = [// different from 00:
+  { left: true, right: true, both: false },   // 0110
+  { left: true, right: true, both: true },    // 0111
+  { left: true, right: false, both: false },  // 0100
+  { left: false, right: true, both: false },  // 0010
+  { left: false, right: false, both: true },  // 0001
 ];
+
+var gates = [];
+
+function hasFlag(wire, valuation) {
+  var bitSig = Math.pow(2, numValuations - valuation - 1);
+  return ((wire % (2*bitSig)) >= bitSig);
+}
+
+function outputFor(left, right, gate) {
+  var outputSum = 0;
+  for (var valuation=1; valuation<numValuations; valuation++) {
+    var leftIsOne = hasFlag(left, valuation);
+    var rightIsOne = hasFlag(right, valuation);
+    var outputIsOne = (leftIsOne ?
+      rightIsOne ? gateDefs[gate].both : gateDefs[gate].left :
+      rightIsOne ? gateDefs[gate].right : false);
+    console.log('valuation', valuation, leftIsOne, rightIsOne, outputIsOne);
+    if (outputIsOne) {
+      outputSum += Math.pow(2, numValuations - valuation - 1);
+      console.log('outputSum increased to', outputSum);
+    }
+  }
+  return outputSum;
+}
+
+function genGates() {
+  for (var gate=0; gate<gateDefs.length; gate++) {
+    var res = [];
+    for (var left = 0; left<numValuations; left++) {
+      var leftRes = [];
+      for (var right = 0; right<numValuations; right++) {
+        leftRes.push(outputFor(left, right, gate));
+      }
+      res.push(leftRes);
+    }
+    gates.push(res);
+  }
+}
 
 function applyGate(leftGroup, rightGroup, gate) {
   var gateOutputsOneIf = {
@@ -86,7 +125,9 @@ function applyGate(leftGroup, rightGroup, gate) {
   return output;
 }
 
-function addGate(baseStack, left, right, gate) {
+function addGate(circuitI, left, right, gate) {
+  var baseStack = circuits[circuitI].stack;
+  console.log('addGate', baseStack, left, right, gate);
   var leftWire = baseStack[left];
   var rightWire = baseStack[right];
   var outWire = applyGate(leftWire, rightWire, gate);
@@ -102,6 +143,10 @@ function addGate(baseStack, left, right, gate) {
   }
   var newStack = baseStack.slice(0); // clone
   newStack.push(outWire);
+  // FIXME: ordering the stack is good for preventing duplicates,
+  // but it messes up when you want to add a second gate that uses
+  // the output of the first gate, and this is move from its position
+  // in the stack.
   newStack.sort((a, b) => {
     for (var i=0; i<a.length && i<b.length; i++) {
       if (a[i] - b[i]) {
@@ -110,7 +155,23 @@ function addGate(baseStack, left, right, gate) {
     }
     return a.length - b.length;
   });
-  return newStack;
+  if (typeof newCircuits[newStack] === 'undefined') {
+    var newCircuit = circuits[circuitI].circuit.slice(0); // clone
+    newCircuit.push([left, right, gate]);
+    newCircuits[newStack] = newCircuit;
+  }
 }
 
-console.log(addGate(circuits[0].stack, 0, 1, gates[0]));
+console.log(outputFor(15, 51, 4));
+
+// var newCircuits = {};
+// for (var circuitI=0; circuitI<circuits.length; circuitI++) {
+//   for (var gateI=0; gateI<gates.length; gateI++) {
+//     for (var left=0; left<circuits[circuitI].circuit.length+numVars; left++) {
+//       for (var right=left+1; right<circuits[circuitI].circuit.length+numVars; right++) {
+//         addGate(circuitI, left, right, gates[gateI]);
+//       }
+//     }
+//   }
+// }
+// console.log(newCircuits);
