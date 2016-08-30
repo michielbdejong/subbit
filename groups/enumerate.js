@@ -73,12 +73,12 @@ function applyGate(left, right, gateI) {
 
 function addGate(circuitI, left, right, gateI) {
   var baseStack = circuits[circuitI].stack;
-  console.log('addGate', baseStack, left, right, gateI);
+  // console.log('addGate', baseStack, left, right, gateI);
   var leftWire = baseStack[left];
   var rightWire = baseStack[right];
   var outWire = applyGate(leftWire, rightWire, gateI);
   var haveAlready = false;
-  console.log(baseStack, leftWire, rightWire, 'outWire', outWire);
+  // console.log(baseStack, leftWire, rightWire, 'outWire', outWire);
   baseStack.map(wire => {
     if (wire === outWire) {
       haveAlready = true;
@@ -122,7 +122,7 @@ function writeOut() {
         stack: newCircuits[sortedStack].newStack,
         circuit: newCircuits[sortedStack].newCircuit
       }) + '\n';
-      console.log(line);
+      // console.log(line);
       stream.write(line);
     }
     stream.end();
@@ -132,10 +132,11 @@ function writeOut() {
 // ...
 console.log('Generating lookup table...');
 genGates();
-console.log('Done.');
+console.log('Reading in current circuits...');
 
 var newCircuits = {};
 readIn(function() {
+  console.log('Enumerating circuits with one gate added...');
   for (var circuitI=0; circuitI<circuits.length; circuitI++) {
     for (var gateI=0; gateI<gateDefs.length; gateI++) {
       for (var left=0; left<circuits[circuitI].circuit.length+numVars; left++) {
@@ -145,5 +146,7 @@ readIn(function() {
       }
     }
   }
+  console.log('Writing out new circuits...');
   writeOut();
+  console.log('Done.');
 });
