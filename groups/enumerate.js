@@ -101,16 +101,34 @@ function addGate(circuitI, left, right, gateI) {
 }
 
 function readIn(callback) {
-  var lineReader = readline.createInterface({
-    input: fs.createReadStream('circuits.txt')
-  });
+  try {
+    var stream = fs.createReadStream('circuits.txt');
+    stream.on('error', function(err) {
+      console.error('Could not open circuits.txt');
+      callback();
+    });
+    var lineReader = readline.createInterface({
+      input: stream
+    });
 
-  circuits = [];  
-  lineReader.on('line', function (line) {
-    var circuit = JSON.parse(line);
-    circuits.push(circuit);
-  });
-  lineReader.on('close', callback);
+    circuitsRead = [];  
+    lineReader.on('line', function (line) {
+      var circuit;
+      try {
+        circuit = JSON.parse(line);
+      }
+      circuitsRead.push(circuit);
+    });
+    lineReader.on('close', function() {
+      circuits = circuitsRead;
+      callback();
+    });
+  } catch(e) {
+    console.error('Could not read circuits.txt');
+    lineReader.on('close', function() {
+      callback();
+    });
+  }
 }
 
 function writeOut() {
