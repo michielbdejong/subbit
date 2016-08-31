@@ -1,0 +1,217 @@
+Reading in current circuits...
+Finish writing out new circuits...
+Done.
+Reading in current circuits...
+Writing out non-dupe circuits...
+Done.
+Found minimal circuits for all 1 1-to-1 Boolean functions
+Reading in current circuits...
+Finish writing out new circuits...
+Done.
+Reading in current circuits...
+Writing out non-dupe circuits...
+Done.
+Found minimal circuits for all 7 2-to-1 Boolean functions
+Reading in current circuits...
+Finish writing out new circuits...
+Done.
+Reading in current circuits...
+Writing out non-dupe circuits...
+Done.
+Missing 1
+Missing 2
+Missing 4
+Missing 6
+Missing 7
+Missing 8
+Missing 9
+Missing 11
+Missing 13
+Missing 14
+Missing 16
+Missing 18
+Missing 19
+Missing 20
+Missing 21
+Missing 22
+Missing 23
+Missing 24
+Missing 25
+Missing 26
+Missing 27
+Missing 28
+Missing 29
+Missing 30
+Missing 31
+Missing 32
+Missing 33
+Missing 35
+Missing 36
+Missing 37
+Missing 38
+Missing 39
+Missing 40
+Missing 41
+Missing 42
+Missing 43
+Missing 44
+Missing 45
+Missing 46
+Missing 47
+Missing 49
+Missing 50
+Missing 52
+Missing 53
+Missing 54
+Missing 55
+Missing 56
+Missing 57
+Missing 58
+Missing 59
+Missing 61
+Missing 62
+Missing 64
+Missing 65
+Missing 66
+Missing 67
+Missing 69
+Missing 70
+Missing 71
+Missing 72
+Missing 73
+Missing 74
+Missing 75
+Missing 76
+Missing 77
+Missing 78
+Missing 79
+Missing 81
+Missing 82
+Missing 83
+Missing 84
+Missing 86
+Missing 87
+Missing 88
+Missing 89
+Missing 91
+Missing 92
+Missing 93
+Missing 94
+Missing 96
+Missing 97
+Missing 98
+Missing 99
+Missing 100
+Missing 101
+Missing 103
+Missing 104
+Missing 105
+Missing 106
+Missing 107
+Missing 108
+Missing 109
+Missing 110
+Missing 111
+Missing 112
+Missing 113
+Missing 114
+Missing 115
+Missing 116
+Missing 117
+Missing 118
+Missing 120
+Missing 121
+Missing 122
+Missing 123
+Missing 124
+Missing 125
+Missing 126
+Missing 127
+Found minimal circuits for 18 / 127 3-to-1 Boolean functions
+Reading in current circuits...
+Finish writing out new circuits...
+Done.
+Reading in current circuits...
+Writing out non-dupe circuits...
+Done.
+Missing 22
+Missing 23
+Missing 24
+Missing 25
+Missing 26
+Missing 27
+Missing 28
+Missing 29
+Missing 36
+Missing 37
+Missing 38
+Missing 39
+Missing 41
+Missing 43
+Missing 44
+Missing 46
+Missing 52
+Missing 53
+Missing 56
+Missing 58
+Missing 61
+Missing 62
+Missing 66
+Missing 67
+Missing 70
+Missing 71
+Missing 73
+Missing 74
+Missing 77
+Missing 78
+Missing 82
+Missing 83
+Missing 88
+Missing 91
+Missing 92
+Missing 94
+Missing 97
+Missing 98
+Missing 100
+Missing 103
+Missing 104
+Missing 107
+Missing 109
+Missing 110
+Missing 113
+Missing 114
+Missing 116
+Missing 118
+Missing 121
+Missing 122
+Missing 124
+Missing 126
+Found minimal circuits for 75 / 127 3-to-1 Boolean functions
+Reading in current circuits...
+Finish writing out new circuits...
+Done.
+Reading in current circuits...
+Writing out non-dupe circuits...
+Done.
+Missing 22
+Missing 23
+Missing 41
+Missing 43
+Missing 73
+Missing 77
+Missing 97
+Missing 104
+Missing 107
+Missing 109
+Missing 113
+Missing 121
+Found minimal circuits for 115 / 127 3-to-1 Boolean functions
+Reading in current circuits...
+Finish writing out new circuits...
+Done.
+Reading in current circuits...
+Writing out non-dupe circuits...
+Done.
+Found minimal circuits for all 1 1-to-1 Boolean functions
+Found minimal circuits for all 7 2-to-1 Boolean functions
+Found minimal circuits for all 127 3-to-1 Boolean functions
